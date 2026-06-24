@@ -30,3 +30,17 @@ The script generates grid mapping files that match current GCAM regions and Geog
 Rscript country2grid_mapping.r
 ```
 ---
+
+--------------------------------------------------
+## E3SM to GCAM land mapping
+### Script name - `e3sm_gcam_land_mapping.r`
+
+* Generate glm input files and iESMv2 IAC grid mapping files that reflect current GCAM Regions/GLUs
+* For iESM in E3SM v2 and v3, using the original GLM
+* Both the region and USA-state `elm2gcam` files are written
+
+--------------------------------------------------
+## E3SM to GCAM land mapping
+### Script name - `elm2gcam_mapping_generator.py`
+
+Python translation of the `elm2gcam` portion of `e3sm_gcam_land_mapping.r`.

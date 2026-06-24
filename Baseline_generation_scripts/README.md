@@ -11,3 +11,11 @@
 	* total cell area
 * This data is currently stored in the `h2` file in our current run script.
 
+--------------------------------------------------
+
+## Create baseline `hdd`, and `cdd` files for E3SM-GCAM simulations:
+### Script name - `era5_hdd_cdd_elm_grids.py`
+
+ Computes mean annual Heating Degree Days (HDD) and Cooling Degree Days (CDD)
+ from ERA5 near-surface temperature forcing, then regrids the spatial fields
+ to each of the five standard ELM grid resolutions used in E3SM-GCAM coupling.
