@@ -51,7 +51,7 @@
 # CSV columns:
 #   lon_ind  - 1-based longitude index (varies fastest, matches ELM cell order)
 #   lat_ind  - 1-based latitude index
-#   HDD / CDD - mean annual value in K days yr-1
+#   HDD / CDD - mean annual value in °F days yr-1
 
 from pathlib import Path
 from datetime import datetime
@@ -117,11 +117,11 @@ def _open_tbot(yr_start: int, yr_end: int) -> xr.Dataset:
 # ----------------------------
 def compute_hdd_cdd_spatial(yr_start: int, yr_end: int
                             ) -> tuple[xr.DataArray, xr.DataArray]:
-    """Return mean annual HDD and CDD spatial fields (lat x lon, K days yr-1).
+    """Return mean annual HDD and CDD spatial fields (lat x lon, °F days yr-1).
 
-    Follows the same per-pixel computation as _hdd_cdd_annual() in
-    calc_ERA5_HDD_CDD.py but keeps the spatial dimensions instead of
-    reducing to a global scalar.
+    ERA5 t2m is in Kelvin; daily degree-days are first accumulated in K-days
+    (= °C-days) and then converted to Fahrenheit-days by multiplying by 9/5,
+    since a temperature difference of 1 K equals 9/5 °F.
     """
     print(f"  Loading ERA5 t2m for {yr_start}-{yr_end} ...")
     with _open_tbot(yr_start, yr_end) as ds:
@@ -143,6 +143,10 @@ def compute_hdd_cdd_spatial(yr_start: int, yr_end: int
         # Load into memory before closing the lazy dataset
         hdd_mean = hdd_mean.load()
         cdd_mean = cdd_mean.load()
+
+    # Convert K-days (= °C-days) to Fahrenheit-days: ΔT_F = ΔT_K × 9/5
+    hdd_mean = hdd_mean * (9.0 / 5.0)
+    cdd_mean = cdd_mean * (9.0 / 5.0)
 
     return hdd_mean, cdd_mean
 # ----------------------------
@@ -202,8 +206,8 @@ def plot_spatial_check(lon_1d: np.ndarray, lat_1d: np.ndarray,
     )
 
     configs = [
-        (hdd_plot, 'YlGnBu', 'HDD (K days yr⁻¹)', 'HDD'),
-        (cdd_plot, 'YlOrRd', 'CDD (K days yr⁻¹)', 'CDD'),
+        (hdd_plot, 'YlGnBu', 'HDD (°F days yr⁻¹)', 'HDD'),
+        (cdd_plot, 'YlOrRd', 'CDD (°F days yr⁻¹)', 'CDD'),
     ]
 
     for ax, (data, cmap, cbar_label, var_title) in zip(axes, configs):

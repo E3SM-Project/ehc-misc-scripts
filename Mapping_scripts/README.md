@@ -44,3 +44,42 @@ Rscript country2grid_mapping.r
 ### Script name - `elm2gcam_mapping_generator.py`
 
 Python translation of the `elm2gcam` portion of `e3sm_gcam_land_mapping.r`.
+
+--------------------------------------------------
+## ERA5 HDD/CDD to GCAM land mapping
+### Script name - `era5_hdd_cdd_gcam_regions.py`
+
+Maps ERA5 mean-annual HDD and CDD to GCAM land units (region x GLU),
+including a second set of output files that sub-divide the USA into
+individual states following the same approach as `e3sm_gcam_land_mapping.r`.
+
+#### APPROACH:
+The MOIRAI high-resolution land-area raster (5 arcminute, 2160x4320)
+encodes each pixel's GCAM land unit as region_code*10000 + GLU_code.
+ERA5 HDD/CDD fields are interpolated to that same fine grid, then a
+land-area-weighted mean is computed for every GCAM land unit.
+A second raster (moirai_state_rast) replaces the USA region code inside
+the contiguous US with individual state codes, enabling state-level output.
+
+--------------------------------------------------
+## ERA5 HDD/CDD to GCAM xml file creaton
+### Script name - `era5_hdd_cdd_to_gcam_xml.py`
+
+Converts ERA5-derived HDD and CDD CSVs (output of `era5_hdd_cdd_gcam_regions.py`)
+into GCAM XML input files that follow the same structure as:
+   `HDDCDD_constdd_no_GCM.xml`   (32 global GCAM regions)
+   `HDDCDD_constdds_USA.xml`     (51 US states)
+
+APPROACH:
+The ERA5 CSVs contain one row per region x GLU (or state x GLU).
+These are collapsed to one value per region (or state) using a
+land-area-weighted mean across GLUs.  The result is rounded to the
+nearest integer to match the existing XML format.
+
+ERA5 PERIOD LABEL → XML HISTORICAL YEAR MAPPING:
+  ERA5 1980 (avg 1976–1980)  → XML year 1975
+  ERA5 1990 (avg 1986–1990)  → XML year 1990
+  ERA5 2005 (avg 2001–2005)  → XML year 2005
+  ERA5 2010 (avg 2006–2010)  → XML year 2010
+  ERA5 2015 (avg 2011–2015)  → XML year 2015
+  Future years 2020–2100     → hold 2015 value constant
